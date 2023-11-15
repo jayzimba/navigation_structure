@@ -14,11 +14,15 @@ import {
   watchPositionAsync,
 } from "expo-location";
 import * as geolib from "geolib";
+import axios from "axios";
+import { color } from "react-native-elements/dist/helpers";
 
 const MapScreen = () => {
   const [location, setLocation] = useState(null);
   const [mapRegion, setMapRegion] = useState(null);
   const [markerVisible, setMarkerVisible] = useState(false);
+  const [pupils, setPupils] = useState([]);
+
   const [polygonCoordinates, setPolygonCoordinates] = useState([
     // { latitude: -12.946371, longitude: 28.642533 },
     { latitude: -12.94558, longitude: 28.642472 },
@@ -30,6 +34,24 @@ const MapScreen = () => {
   const [timer, setTimer] = useState({ hours: 0, minutes: 0, seconds: 0 });
   const [timerInterval, setTimerInterval] = useState(null);
   const [screenBorderColor, setScreenBorderColor] = useState(""); // Default to green
+
+  useEffect(() => {
+    fetchPupils();
+  });
+
+  const fetchPupils = async () => {
+    var formdata = new FormData();
+
+    var requestOptions = {
+      method: "GET",
+      redirect: "follow",
+    };
+
+    fetch("https://www.pezabond.com/james/fetchCoords.php", requestOptions)
+      .then((response) => response.json())
+      .then((result) => setPupils(result))
+      .catch((error) => console.log("error", error));
+  };
 
   useEffect(() => {
     (async () => {
@@ -44,8 +66,8 @@ const MapScreen = () => {
         // Watch for changes in the user's location
         const locationWatch = await watchPositionAsync(
           {
-            accuracy: 6, // Adjust accuracy as needed
-            timeInterval: 1000, // Update interval in milliseconds
+            accuracy: 10, // Adjust accuracy as needed
+            timeInterval: 500, // Update interval in milliseconds
           },
           (location) => {
             setLocation(location);
@@ -66,8 +88,8 @@ const MapScreen = () => {
       setMapRegion({
         latitude: location.coords.latitude,
         longitude: location.coords.longitude,
-        latitudeDelta: 0.0922, // Adjust as needed
-        longitudeDelta: 0.0421, // Adjust as needed
+        latitudeDelta: 0.0022, // Adjust as needed
+        longitudeDelta: 0.0021, // Adjust as needed
       });
       if (markerVisible) {
         // Check if the marker is within the polygon
@@ -156,20 +178,10 @@ const MapScreen = () => {
       ) : (
         <Text>Loading...</Text>
       )}
-      <View style={styles.timerContainer}>
-        <Text
-          style={{
-            bottom: 70,
-            marginLeft: 20,
-            fontWeight: "500",
-            fontSize: 22,
-            elevation: 7,
-          }}
-        >{`Timer: ${timer.hours}h ${timer.minutes}m ${timer.seconds}s`}</Text>
-      </View>
+
       <View style={styles.buttonContainer}>
         <Button
-          title={markerVisible ? "Sign Out" : "Login"}
+          title={markerVisible ? "TURN OFF" : "CHECK PROXIMITY"}
           onPress={toggleMarkerVisibility}
         />
       </View>
