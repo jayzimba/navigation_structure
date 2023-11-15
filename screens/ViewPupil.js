@@ -17,6 +17,7 @@ const ViewPupil = () => {
 
   useEffect(() => {
     fetchData();
+    fetchData();
   }, []);
 
   const fetchData = async () => {
